@@ -31,6 +31,10 @@ spec:
               value: "allow"
             - name: HERO_ELEMENTS
               value: "allow"
+            - name: REQUEST_INTERCEPT
+              value: allow
+            - name: RESPONSE_INTERCEPT
+              value: allow
             - name: LABELS
               value: 'desktop, smoke, training'
             - name: LICENSE
