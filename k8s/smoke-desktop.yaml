@@ -1,4 +1,4 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: smoke-desktop
@@ -16,19 +16,29 @@ spec:
             image: XXXX
             env:
             - name: BASE_URL
-              value: "https://webperf.canarytrace.com/"
+              value: 'https://webperf.canarytrace.com/'
+            - name: ENV_PRINT
+              value: "no"
             - name: PT_AUDIT
-              value: "allow"
+              value: allow
             - name: PT_AUDIT_THROTTLING
-              value: "desktopDense4G"
+              value: desktopDense4G
+            - name: AVAILABILITY_CHECK
+              value: "no"
+            - name: MEMORY_INTERCEPT
+              value: "allow"
+            - name: COVERAGE_AUDIT
+              value: "allow"
+            - name: HERO_ELEMENTS
+              value: "allow"
             - name: LABELS
-              value: "desktop, smoke, training"
+              value: 'desktop, smoke, training'
             - name: LICENSE
-              value: "XXXX"
+              value: XXXX
             - name: ELASTIC_CLUSTER
-              value: "https://XXXX.es.eu-central-1.aws.cloud.es.io:9243"
+              value: 'https://XXXX:9243'
             - name: ELASTIC_HTTP_AUTH
-              value: "elastic:XXXX"
+              value: 'elastic:XXXX'
             resources:
               requests:
                 memory: "300Mi"
