@@ -1,0 +1,72 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: smoke-desktop
+  namespace: canarytrace
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 2
+  schedule: "*/3 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: canarytrace
+            image: XXXX
+            env:
+            - name: BASE_URL
+              value: "https://webperf.canarytrace.com/"
+            - name: PT_AUDIT
+              value: "allow"
+            - name: PT_AUDIT_THROTTLING
+              value: "desktopDense4G"
+            - name: LABELS
+              value: "desktop, smoke, training"
+            - name: LICENSE
+              value: "XXXX"
+            - name: ELASTIC_CLUSTER
+              value: "https://XXXX.es.eu-central-1.aws.cloud.es.io:9243"
+            - name: ELASTIC_HTTP_AUTH
+              value: "elastic:XXXX"
+            resources:
+              requests:
+                memory: "300Mi"
+                cpu: "200m"
+              limits:
+                memory: "400Mi"
+                cpu: "300m"
+            imagePullPolicy: "IfNotPresent"
+          - name: selenium
+            image: selenium/standalone-chrome:4.0.0-beta-4-prerelease-20210517
+            ports:
+              - containerPort: 4444
+            resources:
+              requests:
+                memory: "2000Mi"
+                cpu: "2000m"
+              limits:
+                memory: "4000Mi"
+                cpu: "4000m"
+            imagePullPolicy: "IfNotPresent"
+            volumeMounts:
+              - mountPath: "/dev/shm"
+                name: "dshm"
+            livenessProbe:
+              httpGet:
+                path: /status
+                port: 4444
+              initialDelaySeconds: 10
+              timeoutSeconds: 5
+            readinessProbe:
+              httpGet:
+                path: /status
+                port: 4444
+              initialDelaySeconds: 10
+              timeoutSeconds: 5
+          restartPolicy: "Never"
+          terminationGracePeriodSeconds: 5
+          volumes:
+            - name: "dshm"
+              emptyDir:
+                medium: "Memory"
