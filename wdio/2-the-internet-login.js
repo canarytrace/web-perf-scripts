@@ -1,12 +1,14 @@
-describe('My Login application', () => {
-  it('should login with valid credentials', async () => {
+describe('More steps and login', () => {
+  it('open page', async () => {
     await browser.url(`https://the-internet.herokuapp.com/login`)
+  })
 
+  it('login', async () => {
     const userElm = await $('#username')
-    userElm.setValue('tomsmith')
+    await userElm.setValue('tomsmith')
 
     const passElm = await $('#password')
-    passElm.setValue('SuperSecretPassword!')
+    await passElm.setValue('SuperSecretPassword!')
 
     const buttonElm = await $('button[type="submit"]')
     buttonElm.click()
