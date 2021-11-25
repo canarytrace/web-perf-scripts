@@ -1,0 +1,135 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: smoke-desktop-user-journey
+  namespace: canarytrace
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 2
+  schedule: "*/3 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: canarytrace
+            image: quay.io/canarytrace/canarytrace-pub:4.15.0-pro-20211121121337-60
+            env:
+            - name: GIT_REVISION
+              value: "05a1476"
+            - name: MODE
+              value: "user-journey"
+            - name: SPEC
+              value: "wdio/4-the-internet-login-env.js"
+            - name: BASE_URL
+              value: 'https://the-internet.herokuapp.com'
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret-user
+                  key: username
+            - name: PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret-user
+                  key: password
+            - name: ENV_PRINT
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-config
+                  key: env
+            - name: GIT_REPOSITORY
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-config
+                  key: git.repository
+            - name: GIT_REPOSITORY_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-config
+                  key: git.repository.host
+            - name: GIT_REPOSITORY_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-config
+                  key: git.repository.port
+            - name: PT_AUDIT
+              value: allow
+            - name: PT_AUDIT_THROTTLING
+              value: desktopDense4G
+            - name: AVAILABILITY_CHECK
+              value: "no"
+            - name: MEMORY_INTERCEPT
+              value: "allow"
+            - name: COVERAGE_AUDIT
+              value: "allow"
+            - name: HERO_ELEMENTS
+              value: "allow"
+            - name: REQUEST_INTERCEPT
+              value: allow
+            - name: RESPONSE_INTERCEPT
+              value: allow
+            - name: LABELS
+              value: 'desktop, smoke, training'
+            - name: LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: secret-elastic
+                  key: license
+            - name: ELASTIC_CLUSTER
+              valueFrom:
+                secretKeyRef:
+                  name: secret-elastic
+                  key: elastic.cluster
+            - name: ELASTIC_HTTP_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: secret-elastic
+                  key: elastic.http.auth
+            resources:
+              requests:
+                memory: "300Mi"
+                cpu: "200m"
+              limits:
+                memory: "400Mi"
+                cpu: "300m"
+            imagePullPolicy: "IfNotPresent"
+          - name: selenium
+            image: selenium/standalone-chrome:4.0.0-beta-4-prerelease-20210517
+            ports:
+              - containerPort: 4444
+            resources:
+              requests:
+                memory: "2000Mi"
+                cpu: "2000m"
+              limits:
+                memory: "4000Mi"
+                cpu: "4000m"
+            imagePullPolicy: "IfNotPresent"
+            volumeMounts:
+              - mountPath: "/dev/shm"
+                name: "dshm"
+            livenessProbe:
+              httpGet:
+                path: /status
+                port: 4444
+              initialDelaySeconds: 10
+              timeoutSeconds: 5
+            readinessProbe:
+              httpGet:
+                path: /status
+                port: 4444
+              initialDelaySeconds: 10
+              timeoutSeconds: 5
+          restartPolicy: "Never"
+          terminationGracePeriodSeconds: 5
+          volumes:
+            - name: "dshm"
+              emptyDir:
+                medium: "Memory"
+            - name: secret-elastic
+              secret:
+                secretName: secret-elastic
+            - name: secret-user
+              secret:
+                secretName: secret-user
