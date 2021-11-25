@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: canarytrace-config
+  namespace: canarytrace
+data:
+  env: "no"
+  git.repository: "https://github.com/canarytrace/web-perf-training.git"
+  git.repository.host: "github.com"
+  git.repository.port: "22"
