@@ -47,6 +47,9 @@ jobs:
           version: 'latest'
         id: install
       -
+        name: List directory
+        run: ls -lah
+      -
         name: Run pipeline.sh
         run: k8s-cicd/pipeline.sh
         shell: bash
