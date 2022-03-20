@@ -10,9 +10,9 @@ spec:
     image: canarytrace-image-XXX
     env:
     - name: ENV_PRINT
-      value: "allow"
+      value: "no"
     - name: AVAILABILITY_CHECK
-      value: "allow"
+      value: "no"
     - name: BASE_URL
       value: "BASE_URL-XXXX"
     - name: PT_AUDIT
