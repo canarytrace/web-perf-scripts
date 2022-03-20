@@ -3,7 +3,7 @@ set -e
 
 echo "Run Canarytrace in K8s."
 
-KUBE_CONFIG="--kubeconfig=deployments/kube-config.yaml"
+KUBE_CONFIG="--kubeconfig=./kube-config.yaml"
 POD_NAME="canary-pipe-release-${RUN_ID}"
 CONTAINER_NAME="canarytrace"
 POD="k8s-cicd/canarytrace-pod.yaml"
