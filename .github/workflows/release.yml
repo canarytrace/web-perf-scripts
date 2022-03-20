@@ -23,11 +23,6 @@ jobs:
       -
         id: generate-uuid
         run: echo "::set-output name=run-id::$(date '+%H%M%S')"
-      -
-        name: Checkout Git repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
   job2:
     needs: job1
@@ -46,9 +41,18 @@ jobs:
         with:
           version: 'latest'
         id: install
+        
+      # Clone this repository
+      -
+        name: Checkout Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       -
         name: List directory
         run: ls -lah
+        
+      # Run in Kubernetes
       -
         name: Run pipeline.sh
         run: k8s-cicd/pipeline.sh
