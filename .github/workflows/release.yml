@@ -52,6 +52,9 @@ jobs:
       -
         name: List directory
         run: ls -lah
+      -
+        name: Grant permission
+        run: chmod +x k8s-cicd/pipeline.sh
         
       # Run in Kubernetes
       -
