@@ -1,0 +1,9 @@
+name: Build & Release 
+
+# build only on push to master branch
+on:
+  push:
+    branches: 
+    - main
+  schedule:
+    - cron:  '0 1 * * *'
