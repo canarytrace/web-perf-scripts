@@ -24,7 +24,7 @@ sed -i -e "s|canarytrace-XXX|${POD_NAME}|g" $POD
 
 echo "------------------"
 echo "Rename Docker image to pipeline-${RUN_ID}"
-sed -i -e "s|quay.io/canarytrace/canarytrace:latest-pipeline|quay.io/canarytrace/canarytrace:pipeline-${RUN_ID}|g" $POD
+sed -i -e "s|canarytrace-image-XXX|${CANARY_IMAGE}|g" $POD
 
 cat $POD
 
