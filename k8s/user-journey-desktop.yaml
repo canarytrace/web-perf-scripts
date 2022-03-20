@@ -13,10 +13,10 @@ spec:
         spec:
           containers:
           - name: canarytrace
-            image: quay.io/canarytrace/canarytrace-pub:4.15.0-pro-20211121121337-60
+            image: XXXX
             env:
             - name: GIT_REVISION
-              value: "05a1476"
+              value: "XXXX"
             - name: MODE
               value: "user-journey"
             - name: SPEC
