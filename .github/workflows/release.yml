@@ -33,7 +33,7 @@ jobs:
       
       # Kubeconfig is stored in Github secret as base64 string
       - name: Store K8s config
-        run: echo $KUBE_CONFIG_BASE64 | base64 -d > deployments/kube-config.yaml
+        run: echo $KUBE_CONFIG_BASE64 | base64 -d > kube-config.yaml
         shell: bash
         env:
           KUBE_CONFIG_BASE64 : ${{secrets.KUBE_CONFIG_BASE64}}
