@@ -7,3 +7,50 @@ on:
     - main
   schedule:
     - cron:  '0 1 * * *'
+
+jobs:
+
+  job1:
+    name: Build Docker image
+    runs-on: ubuntu-20.04
+    outputs:
+      run-id: ${{ steps.generate-uuid.outputs.run-id }}
+
+    steps:
+
+      # Stage1 Prepare and Build
+      # Generate uuid, which is used in POD in LABELS and as label
+      -
+        id: generate-uuid
+        run: echo "::set-output name=run-id::$(date '+%H%M%S')"
+
+  job2:
+    needs: job1
+    name: Run Smoke in K8s
+    runs-on: ubuntu-20.04
+
+    steps:
+      
+      # Kubeconfig is stored in Github secret as base64 string
+      - name: Store K8s config
+        run: echo $KUBE_CONFIG_BASE64 | base64 -d > deployments/kube-config.yaml
+        shell: bash
+        env:
+          KUBE_CONFIG_BASE64 : ${{secrets.KUBE_CONFIG_BASE64}}
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+        id: install
+      -
+        name: Run pipeline.sh
+        run: k8s-cicd/pipeline.sh
+        shell: bash
+        env:
+          CANARYTRACE_LICENSE : ${{secrets.CANARY_LICENSE}}
+          CANARY_IMAGE : ${{secrets.CANARY_IMAGE}}
+          ELASTIC_CLUSTER : ${{secrets.ELASTIC_CLUSTER}}
+          ELASTIC_HTTP_AUTH : ${{secrets.ELASTIC_HTTP_AUTH}}
+          RUN_ID: ${{needs.job1.outputs.run-id}}
+          LABELS: "run-id-smoke-${{needs.job1.outputs.run-id}}"
+          BASE_URL: ${{secrets.BASE_URL}}
+          NAMESPACE: ${{secrets.NAMESPACE}}
