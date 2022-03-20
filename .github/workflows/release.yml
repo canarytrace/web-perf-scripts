@@ -23,6 +23,11 @@ jobs:
       -
         id: generate-uuid
         run: echo "::set-output name=run-id::$(date '+%H%M%S')"
+      -
+        name: Checkout Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
   job2:
     needs: job1
