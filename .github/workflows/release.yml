@@ -30,9 +30,17 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+    
+      # Clone this repository
+      -
+        name: Checkout Git repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       
       # Kubeconfig is stored in Github secret as base64 string
-      - name: Store K8s config
+      - 
+        name: Store K8s config
         run: echo $KUBE_CONFIG_BASE64 | base64 -d > kube-config.yaml
         shell: bash
         env:
@@ -41,13 +49,6 @@ jobs:
         with:
           version: 'latest'
         id: install
-        
-      # Clone this repository
-      -
-        name: Checkout Git repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       -
         name: List directory
         run: ls -lah
