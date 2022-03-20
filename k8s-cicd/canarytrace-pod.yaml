@@ -1,0 +1,89 @@
+# Do not edit, this POD is run via ./pipeline.sh
+apiVersion: v1
+kind: Pod
+metadata:
+  name: canarytrace-XXX
+  namespace: namespace-XXX
+spec:
+  containers:
+  - name: canarytrace
+    image: canarytrace-image-XXX
+    env:
+    - name: ENV_PRINT
+      value: "allow"
+    - name: AVAILABILITY_CHECK
+      value: "allow"
+    - name: BASE_URL
+      value: "BASE_URL-XXXX"
+    - name: PT_AUDIT
+      value: "allow"
+    - name: PT_AUDIT_REPORT
+      value: "allow"
+    - name: PT_AUDIT_TRACE
+      value: "allow"
+    - name: PT_AUDIT_THROTTLING
+      value: "desktopDense4G"
+    - name: LABELS
+      value: "desktop, smoke, pipeline, run-id-XXX"
+    - name: LICENSE
+      value: "LICENSE-XXXX"
+    - name: ELASTIC_CLUSTER
+      value: "ELASTIC-XXXX"
+    - name: ELASTIC_HTTP_AUTH
+      value: "elastic:pass"
+    - name: REQUEST_LOG
+      value: "allow"
+    - name: COVERAGE_AUDIT
+      value: "allow"
+    - name: MEMORY_INTERCEPT
+      value: "allow"
+    - name: HERO_ELEMENTS
+      value: "allow"
+    - name: PAUSE_BETWEEN_SMOKE
+      value: "5000"
+    resources:
+      requests:
+        memory: "300Mi"
+        cpu: "200m"
+      limits:
+        memory: "800Mi"
+        cpu: "300m"
+    volumeMounts:
+      - name: assets
+        mountPath: /opt/canary/assets
+    imagePullPolicy: "IfNotPresent"
+  - name: selenium
+    image: selenium/standalone-chrome:4.1.1-20211217
+    ports:
+      - containerPort: 4444
+    resources:
+      requests:
+        memory: "2000Mi"
+        cpu: "2000m"
+      limits:
+        memory: "4000Mi"
+        cpu: "4000m"
+    imagePullPolicy: "IfNotPresent"
+    volumeMounts:
+      - mountPath: "/dev/shm"
+        name: "dshm"
+    livenessProbe:
+      httpGet:
+        path: /status
+        port: 4444
+      initialDelaySeconds: 10
+      timeoutSeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /status
+        port: 4444
+      initialDelaySeconds: 10
+      timeoutSeconds: 5
+  restartPolicy: "Never"
+  terminationGracePeriodSeconds: 5
+  volumes:
+    - name: "dshm"
+      emptyDir:
+        medium: "Memory"
+    - name: "assets"
+      emptyDir: {}
