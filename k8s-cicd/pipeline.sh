@@ -6,7 +6,6 @@ echo "Run Canarytrace in K8s."
 KUBE_CONFIG="--kubeconfig=deployments/kube-config.yaml"
 POD_NAME="canary-pipe-release-${MODE}-${RUN_ID}"
 CONTAINER_NAME="canarytrace"
-NAMESPACE="${NAMESPACE}"
 POD="k8s-cicd/canarytrace-pod.yaml"
 
 echo "------------------"
@@ -16,6 +15,7 @@ sed -i -e "s|ELASTIC-XXXX|${ELASTIC_CLUSTER}|g" $POD
 sed -i -e "s|elastic:pass|${ELASTIC_HTTP_AUTH}|g" $POD
 sed -i -e "s|run-id-XXX|${LABELS}|g" $POD
 sed -i -e "s|BASE_URL-XXXX|${BASE_URL}|g" $POD
+sed -i -e "s|namespace-XXX|${NAMESPACE}|g" $POD
 
 echo "------------------"
 echo "Rename pod ${POD} to ${POD_NAME}"
