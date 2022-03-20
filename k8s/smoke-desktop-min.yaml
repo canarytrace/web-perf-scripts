@@ -18,11 +18,11 @@ spec:
             - name: BASE_URL
               value: 'https://webperf.canarytrace.com/'
             - name: LABELS
-              value: 'desktop, smoke, training'
+              value: 'desktop, smoke, webperf'
             - name: LICENSE
               value: XXXX
             - name: ELASTIC_CLUSTER
-              value: 'https://XXXX.es.eu-central-1.aws.cloud.es.io:9243'
+              value: 'https://XXXX:9243'
             - name: ELASTIC_HTTP_AUTH
               value: 'elastic:XXXX'
             resources:
@@ -30,11 +30,14 @@ spec:
                 memory: "300Mi"
                 cpu: "200m"
               limits:
-                memory: "400Mi"
-                cpu: "300m"
+                memory: "1600Mi"
+                cpu: "800m"
+            volumeMounts:
+              - name: assets
+                mountPath: /opt/canary/assets
             imagePullPolicy: "IfNotPresent"
           - name: selenium
-            image: selenium/standalone-chrome:4.0.0-beta-4-prerelease-20210517
+            image: selenium/standalone-chrome:4.1.1-20211217
             ports:
               - containerPort: 4444
             resources:
@@ -66,3 +69,5 @@ spec:
             - name: "dshm"
               emptyDir:
                 medium: "Memory"
+            - name: "assets"
+              emptyDir: {}

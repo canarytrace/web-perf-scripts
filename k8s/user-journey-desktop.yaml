@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: smoke-desktop-user-journey
+  name: user-journey-desktop
   namespace: canarytrace
 spec:
   concurrencyPolicy: Replace
@@ -24,35 +24,17 @@ spec:
             - name: BASE_URL
               value: 'https://the-internet.herokuapp.com'
             - name: USER
-              valueFrom:
-                secretKeyRef:
-                  name: secret-user
-                  key: username
+              value: "tomsmith"
             - name: PASS
-              valueFrom:
-                secretKeyRef:
-                  name: secret-user
-                  key: password
+              value: "SuperSecretPassword!"
             - name: ENV_PRINT
-              valueFrom:
-                configMapKeyRef:
-                  name: canarytrace-config
-                  key: env
+              value: "no"
             - name: GIT_REPOSITORY
-              valueFrom:
-                configMapKeyRef:
-                  name: canarytrace-config
-                  key: git.repository
+              value: "https://github.com/canarytrace/web-perf-scripts.git"
             - name: GIT_REPOSITORY_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: canarytrace-config
-                  key: git.repository.host
+              value: "github.com"
             - name: GIT_REPOSITORY_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: canarytrace-config
-                  key: git.repository.port
+              value: "22"
             - name: PT_AUDIT
               value: allow
             - name: PT_AUDIT_THROTTLING
@@ -65,37 +47,29 @@ spec:
               value: "allow"
             - name: HERO_ELEMENTS
               value: "allow"
-            - name: REQUEST_INTERCEPT
-              value: allow
-            - name: RESPONSE_INTERCEPT
-              value: allow
+            - name: REQUEST_LOG
+              value: "allow"
             - name: LABELS
-              value: 'desktop, smoke, training'
+              value: 'desktop, smoke, webperf'
             - name: LICENSE
-              valueFrom:
-                secretKeyRef:
-                  name: secret-elastic
-                  key: license
+              value: XXXX
             - name: ELASTIC_CLUSTER
-              valueFrom:
-                secretKeyRef:
-                  name: secret-elastic
-                  key: elastic.cluster
+              value: 'https://XXXX.io:9243'
             - name: ELASTIC_HTTP_AUTH
-              valueFrom:
-                secretKeyRef:
-                  name: secret-elastic
-                  key: elastic.http.auth
+              value: 'elastic:XXXX'
             resources:
               requests:
                 memory: "300Mi"
                 cpu: "200m"
               limits:
-                memory: "400Mi"
-                cpu: "300m"
+                memory: "1600Mi"
+                cpu: "800m"
+            volumeMounts:
+              - name: assets
+                mountPath: /opt/canary/assets
             imagePullPolicy: "IfNotPresent"
           - name: selenium
-            image: selenium/standalone-chrome:4.0.0-beta-4-prerelease-20210517
+            image: selenium/standalone-chrome:4.1.1-20211217
             ports:
               - containerPort: 4444
             resources:
@@ -127,9 +101,5 @@ spec:
             - name: "dshm"
               emptyDir:
                 medium: "Memory"
-            - name: secret-elastic
-              secret:
-                secretName: secret-elastic
-            - name: secret-user
-              secret:
-                secretName: secret-user
+            - name: "assets"
+              emptyDir: {}
