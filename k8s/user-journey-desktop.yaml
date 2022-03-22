@@ -20,7 +20,7 @@ spec:
             - name: MODE
               value: "user-journey"
             - name: SPEC
-              value: "wdio/4-the-internet-login-env.js"
+              value: "wdio/5-k8s-the-internet-login-pt-audit.js"
             - name: BASE_URL
               value: 'https://the-internet.herokuapp.com'
             - name: USER
