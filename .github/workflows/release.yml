@@ -70,3 +70,12 @@ jobs:
           LABELS: "run-id-smoke-${{needs.job1.outputs.run-id}}"
           BASE_URL: ${{secrets.BASE_URL}}
           NAMESPACE: ${{secrets.NAMESPACE}}
+  job3:
+    needs: [job1, job2]
+    name: Check data from Canarytrace
+    runs-on: ubuntu-20.04
+    steps:
+      - 
+        name: Elasticsearch healthcheck
+        run: until [ "$(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/_cat/health?h=status')" = "green" ]; do printf "."; done
+        timeout-minutes: 2
