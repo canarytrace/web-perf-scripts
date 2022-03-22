@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: listener-agent-rules
+  namespace: canarytrace
+data:
+  rules: |
+    rules:
+    - type: match
+      title: "Failed check your page!"
+      index: c.report
+      timeRange: now-1h
+      field: passed
+      operator: must
+      expected: false
+      min: 2
+      reportLabels:
+      - 'fullTitle'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 10
+        message: "An error occurred while checking."
+      - type: events
+        score: 10
+        message: "An error occurred while checking."
+    - type: contains
+      title: "Encoding of response with Javascript files must contains gzip or brotli compression."
+      index: c.response
+      timeRange: now-1h
+      field: headers.content-type
+      value: 'javascript'
+      expression:
+        field: 'headers.content-encoding'
+        operator: must_not
+        values:
+        - 'gzip'
+        - 'br'
+      min: 10
+      reportLabels:
+      - 'url'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "Use Brotli for plain text compression."
+      - type: events
+        score: 40
+        message: "Use Brotli for plain text compression."
+    - type: contains
+      title: "Encoding of response with CSS files must contains gzip or brotli compression."
+      index: c.response
+      timeRange: now-1h
+      field: headers.content-type
+      value: 'css'
+      expression:
+        field: 'headers.content-encoding'
+        operator: must_not
+        values:
+        - 'gzip'
+        - 'br'
+      min: 10
+      reportLabels:
+      - 'url'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "Use Brotli for plain text compression."
+      - type: events
+        score: 40
+        message: "Use Brotli for plain text compression."
+    - type: range
+      title: "Higher response time."
+      index: c.performance-entries
+      timeRange: now-1h
+      field: responseTime
+      operator: gte
+      value: 3000
+      min: 10
+      reportLabels:
+      - 'name'
+      - 'responseTime'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "Some of responses has higher response time."
+      - type: events
+        score: 40
+        message: "Some of responses has higher response time."
+    - type: range
+      title: "WebVitals LCP exceeded."
+      index: c.audit
+      timeRange: now-1h
+      field: audits.largest-contentful-paint.numericValue
+      operator: gte
+      value: 2500
+      min: 5
+      reportLabels:
+      - 'audits.largest-contentful-paint.numericValue'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "Point in the page load timeline when the page's main content has likely loaded, https://web.dev/lcp/"
+      - type: events
+        score: 40
+        message: "Point in the page load timeline when the page's main content has likely loaded, https://web.dev/lcp/"
+    - type: range
+      title: "WebVitals TTI exceeded."
+      index: c.audit
+      timeRange: now-1h
+      field: audits.interactive.numericValue
+      operator: gte
+      value: 5000
+      min: 5
+      reportLabels:
+      - 'audits.interactive.numericValue'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "How long it takes a page to become fully interactive, https://web.dev/interactive/"
+      - type: events
+        score: 40
+        message: "How long it takes a page to become fully interactive, https://web.dev/interactive/"
+    - type: range
+      title: "WebVitals CLS exceeded."
+      index: c.audit
+      timeRange: now-1h
+      field: audits.cumulative-layout-shift.numericValue
+      operator: gte
+      value: 0.1
+      min: 5
+      reportLabels:
+      - 'audits.cumulative-layout-shift.numericValue'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "User-centric metric for measuring visual stability, https://web.dev/cls/"
+      - type: events
+        score: 40
+        message: "User-centric metric for measuring visual stability, https://web.dev/cls/"
+    - type: range
+      title: "LoadEventEnd exceeded."
+      index: c.performance-entries
+      timeRange: now-1h
+      field: loadEventEnd
+      operator: gte
+      value: 4000
+      min: 5
+      reportLabels:
+      - 'loadEventEnd'
+      - 'timestamp'
+      reporters:
+      - type: slack
+        score: 40
+        message: "Page is complete loaded."
+      - type: events
+        score: 40
+        message: "Page is complete loaded."

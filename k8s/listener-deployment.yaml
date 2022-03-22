@@ -1,0 +1,90 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: listener-agent
+  namespace: canarytrace
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: listener
+            image: quay.io/canarytrace/listener-agent:1.9
+            env:
+            - name: ENV_PRINT
+              value: 'no'
+            - name: TAGS
+              value: 'monitoring;production'
+            - name: ELASTIC_CLUSTER
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: elastic.cluster
+            - name: ELASTIC_HTTP_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: elastic.http.auth
+            - name: KIBANA_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: kibana.endpoint
+            - name: SLACK_WEBHOOK_URL_INTERNAL
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: slack.webhook.url.internal
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: slack.webhook.url
+            - name: EMAIL_SMTP_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: email.smtp.server
+            - name: EMAIL_SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-listener-config
+                  key: email.smtp.port
+            - name: EMAIL_SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: email.smtp.user
+            - name: EMAIL_SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: canarytrace-secret
+                  key: email.smtp.pass
+            resources:
+              requests:
+                memory: "50Mi"
+                cpu: "50m"
+              limits:
+                memory: "300Mi"
+                cpu: "200m"
+            imagePullPolicy: "IfNotPresent"
+            volumeMounts:
+              - name: config-rules
+                mountPath: /opt/canary-listener/rules/internal.yaml
+                subPath: rules
+                readOnly: true
+          restartPolicy: "Never"
+          volumes:
+            - name: canarytrace-secret
+              secret:
+                secretName: secret
+            - name: config-rules
+              configMap:
+                name: listener-agent-rules
+                items:
+                  - key: rules
+                    path: rules
