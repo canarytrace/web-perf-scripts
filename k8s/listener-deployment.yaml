@@ -6,7 +6,7 @@ metadata:
 spec:
   concurrencyPolicy: Replace
   failedJobsHistoryLimit: 1
-  schedule: "*/10 * * * *"
+  schedule: "*/3 * * * *"
   jobTemplate:
     spec:
       template:
@@ -20,50 +20,23 @@ spec:
             - name: TAGS
               value: 'monitoring;production'
             - name: ELASTIC_CLUSTER
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: elastic.cluster
+              value: "XXXX"
             - name: ELASTIC_HTTP_AUTH
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: elastic.http.auth
+              value: "elastic:XXXX"
             - name: KIBANA_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: kibana.endpoint
+              value: "XXXX"
             - name: SLACK_WEBHOOK_URL_INTERNAL
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: slack.webhook.url.internal
+              value: "XXXX"
             - name: SLACK_WEBHOOK_URL
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: slack.webhook.url
+              value: "XXXX"
             - name: EMAIL_SMTP_SERVER
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: email.smtp.server
+              value: "smtp.ethereal.email"
             - name: EMAIL_SMTP_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: canarytrace-listener-config
-                  key: email.smtp.port
+              value: "587"
             - name: EMAIL_SMTP_USER
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: email.smtp.user
+              value: "XXXX"
             - name: EMAIL_SMTP_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: canarytrace-secret
-                  key: email.smtp.pass
+              value: "XXXX"
             resources:
               requests:
                 memory: "50Mi"
