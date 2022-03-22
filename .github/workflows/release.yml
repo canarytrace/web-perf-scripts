@@ -83,5 +83,9 @@ jobs:
         name: Test index c.report-* contains exactly 6 documents
         run: until (($(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/c.report-*/_count?q=labels:"run-id-smoke-${{needs.job1.outputs.run-id}}"' | jq -r ".count") == 6 )); do printf "."; done
         timeout-minutes: 2
+      -
+        name: Test index c.audit-* contains exactly 1 document
+        run: until (($(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/c.audit-*/_count?q=labels:"run-id-smoke-${{needs.job1.outputs.run-id}}"' | jq -r ".count") == 1 )); do printf "."; done
+        timeout-minutes: 2
 
 
