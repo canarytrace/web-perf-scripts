@@ -88,7 +88,7 @@ jobs:
         run: until (($(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/c.audit-*/_count?q=labels:"run-id-smoke-${{needs.job1.outputs.run-id}}"' | jq -r ".count") == 1 )); do printf "."; done
         timeout-minutes: 2
   job4:
-    needs: job3
+    needs: [job1, job2]
     name: Check performance budgets
     runs-on: ubuntu-20.04
     steps:
@@ -100,5 +100,13 @@ jobs:
         name: TTI is less than 2000ms
         run: until (($(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/c.audit-*/_search' -H 'Content-Type:application/json' -d '{"_source":["categories.performance.score"],"query":{ "bool":{ "must":[{ "match_phrase":{ "labels":"run-id-smoke-${{needs.job1.outputs.run-id}}"}}]}}}' | jq -r ".hits.hits[0]._source.audits.interactive.numericValue") < 4000 )); do printf "."; done
         timeout-minutes: 1
-
+  job5:
+    needs: [job4, job3]
+    name: Check Business metrics
+    runs-on: ubuntu-20.04
+    steps:
+      -
+        name: Homepage will be loaded in 3s
+        run: until (($(curl -s --user ${{secrets.ELASTIC_HTTP_AUTH}} '${{secrets.ELASTIC_CLUSTER}}/c.report-*/_search' -H 'Content-Type:application/json' -d '{"_source":["fullTitle"],"query":{ "bool":{ "must":[{ "match_phrase":{ "labels":"run-id-smoke-${{needs.job1.outputs.run-id}}"}}]}}}' | jq -r ".hits.hits[0]._source.fullTitle") < 11069 )); do printf "."; done
+        timeout-minutes: 1
 
