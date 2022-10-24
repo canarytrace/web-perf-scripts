@@ -6,37 +6,64 @@ metadata:
 spec:
   concurrencyPolicy: Replace
   failedJobsHistoryLimit: 1
-  schedule: "*/3 * * * *"
+  schedule: "*/10 * * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
           - name: listener
-            image: quay.io/canarytrace/listener-agent:1.9
+            image: quay.io/canarytrace/listener-agent:1.12
             env:
             - name: ENV_PRINT
               value: 'no'
             - name: TAGS
               value: 'monitoring;production'
             - name: ELASTIC_CLUSTER
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: elastic.cluster
             - name: ELASTIC_HTTP_AUTH
-              value: "elastic:XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: elastic.http.auth
             - name: KIBANA_ENDPOINT
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: kibana.endpoint
             - name: SLACK_WEBHOOK_URL_INTERNAL
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: slack.webhook.url.internal
             - name: SLACK_WEBHOOK_URL
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: slack.webhook.url
             - name: EMAIL_SMTP_SERVER
-              value: "smtp.ethereal.email"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: email.smtp.server
             - name: EMAIL_SMTP_PORT
-              value: "587"
+              valueFrom:
+                configMapKeyRef:
+                  name: canarytrace-listener-config
+                  key: email.smtp.port
             - name: EMAIL_SMTP_USER
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: email.smtp.user
             - name: EMAIL_SMTP_PASS
-              value: "XXXX"
+              valueFrom:
+                secretKeyRef:
+                  name: listener-agent-secret
+                  key: email.smtp.pass
             resources:
               requests:
                 memory: "50Mi"
@@ -52,7 +79,7 @@ spec:
                 readOnly: true
           restartPolicy: "Never"
           volumes:
-            - name: canarytrace-secret
+            - name: listener-agent-secret
               secret:
                 secretName: secret
             - name: config-rules
