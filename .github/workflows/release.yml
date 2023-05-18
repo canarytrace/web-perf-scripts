@@ -1,6 +1,6 @@
 name: Build & Release 
 
-# build only on push to master branch
+# build only on push to master branch.
 on:
   push:
     branches: 
